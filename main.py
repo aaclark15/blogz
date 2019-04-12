@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, session, flash
+from flask import Flask, request, redirect, render_template, flash, session
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -7,7 +7,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:lc101@localhost:8889/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
-app.secret_key = 'hjU898lP1'
+app.secret_key = 'hj67uIj9'
 
 class Blog(db.Model):
 
@@ -19,12 +19,12 @@ class Blog(db.Model):
         self.title = title
         self.body = body
 
-@app.route('/blog', methods=['POST', 'GET'])
+@app.route('/', methods=['POST', 'GET'])
 def index(): 
     
     blogs = Blog.query.all()
 
-    return render_template('blog_list.html', title = "Build-A-Blog App", 
+    return render_template('blog_list.html', title = "Build-A-Blog", 
         blogs = blogs) 
 
 
@@ -39,12 +39,21 @@ def add_blog():
             db.session.add(new_blog)
             db.session.commit()
 
-            return redirect('/blog')
+            blogs = Blog.query.filter_by(id = new_blog.id)
+            return render_template('display.html', blogs = blogs)
         
         else: 
             flash("Blog post cannot be empty", 'error')
     
     return render_template('newpost.html')
+
+@app.route('/display', methods = ['GET'])
+def display():
+    blog_id = request.args.get('id')
+    id = int(blog_id)
+    blogs = Blog.query.filter_by(id = id).all()
+
+    return render_template('display.html', blogs = blogs)
 
 
 if __name__ == '__main__':
